@@ -1,0 +1,82 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+// PlayerController Class
+public class PlayerController : MonoBehaviour
+{
+    public float speed = 5f;
+    private Rigidbody rb;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
+    void Update()
+    {
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+        rb.AddForce(movement * speed);
+    }
+}
+
+// Coin Class
+public class Coin : MonoBehaviour
+{
+    public int coinValue = 1;
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            GameManager.instance.AddScore(coinValue);
+            Destroy(gameObject); // Destroys the coin after collecting it
+        }
+    }
+}
+
+// GameManager Class
+public class GameManager : MonoBehaviour
+{
+    public static GameManager instance;
+    private int score = 0;
+    public Text scoreText; // Attach UI text for score display
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+    }
+
+    public void AddScore(int value)
+    {
+        score += value;
+        UpdateScoreText();
+    }
+
+    void UpdateScoreText()
+    {
+        scoreText.text = "Score: " + score.ToString();
+    }
+}
+
+// CameraController Class
+public class CameraController : MonoBehaviour
+{
+    public GameObject player;
+    private Vector3 offset;
+
+    void Start()
+    {
+        offset = transform.position - player.transform.position;
+    }
+
+    void LateUpdate()
+    {
+        transform.position = player.transform.position + offset;
+    }
+}
